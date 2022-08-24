@@ -12,6 +12,7 @@ const Minter = (props) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [url, setURL] = useState("");
+  const [nfts, setNFTs] = useState({"result": []});
 
   useEffect(async () => {
     const { address, status } = await getCurrentWalletConnected();
@@ -20,8 +21,25 @@ const Minter = (props) => {
     setStatus(status);
 
     addWalletListener();
+    let resp = await fetch("https://deep-index.moralis.io/api/v2/0x038919c63AfF9c932C77a0C9c9D98eABc1a4dd08/nft?chain=rinkeby&format=decimal", {
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'X-API-Key': 'f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y'
+      })
+    });
+    let respJson = await resp.json()
+    console.log(respJson)
+    setNFTs(respJson);
   }, []);
-
+  let NftDoms = <p></p>
+  if (nfts){
+    NftDoms = nfts.result.map((nft) => (
+      <p key={nft.token_address}>
+        {nft.token_address} - {nft.contract_type}
+      </p>
+    ))
+  }
   function addWalletListener() {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts) => {
@@ -81,6 +99,7 @@ const Minter = (props) => {
       <p>
         Simply add your asset's link, name, and description, then press "Mint."
       </p>
+      {NftDoms}
       <form>
         <h2>🖼 Link to asset: </h2>
         <input
