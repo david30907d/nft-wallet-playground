@@ -1,4 +1,4 @@
-# NFT backdoor service (Fleek + Solidity + React) [![.github/workflows/node_ci.yml](https://github.com/david30907d/blockchain-misc/actions/workflows/node_ci.yml/badge.svg)](https://github.com/david30907d/blockchain-misc/actions/workflows/node_ci.yml)
+# NFT backdoor service (Fleek + Solidity + React) [![.github/workflows/node_ci.yml](https://github.com/david30907d/nft-wallet-playground/actions/workflows/node_ci.yml/badge.svg)](https://github.com/david30907d/nft-wallet-playground/actions/workflows/node_ci.yml)
 
 ## Prerequisites
 
