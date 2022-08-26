@@ -2,44 +2,55 @@ import { useEffect, useState } from "react";
 import {
   connectWallet,
   getCurrentWalletConnected,
-  mintNFT,
 } from "./util/interact.js";
+const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
+const alchemyKey = process.env.REACT_APP_ALCHEMY_KEY;
+const web3 = createAlchemyWeb3(alchemyKey);
+const contract = require("./PyConTwNFT.json");
 
 const Minter = (props) => {
   const [walletAddress, setWallet] = useState("");
   const [status, setStatus] = useState("");
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [url, setURL] = useState("");
-  const [nfts, setNFTs] = useState({"result": []});
-
-  useEffect(async () => {
+  const [nfts, setNFTs] = useState({ "result": [] });
+  const [NftDoms, setNftDoms] = useState(<p></p>);
+  async function requestNftData() {
     const { address, status } = await getCurrentWalletConnected();
 
     setWallet(address);
     setStatus(status);
-
     addWalletListener();
-    let resp = await fetch("https://deep-index.moralis.io/api/v2/0x038919c63AfF9c932C77a0C9c9D98eABc1a4dd08/nft?chain=rinkeby&format=decimal", {
+    let resp = await fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=rinkeby&format=decimal`, {
       headers: new Headers({
         'Content-Type': 'application/json',
         'accept': 'application/json',
         'X-API-Key': 'f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y'
       })
     });
-    let respJson = await resp.json()
-    console.log(respJson)
+    let respJson = await resp.json();
+    respJson.result.map(async (nft) => {
+      const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
+      const result = await nftContract.methods.tokenURI(1).call();
+    }
+    )
+    let tmpNftDoms = []
+    for (const nft of respJson.result) {
+      const tokenURI = await getTokenURI(nft)
+      const resp = await fetch(`https://ipfs.io/${tokenURI}`.replace("ipfs:/", "ipfs/"))
+      const imageURI = await resp.json()
+      tmpNftDoms.push(
+        <p key={nft.token_address}>
+          <li>NFT address: {nft.token_address}</li>
+          <li>Type: {nft.contract_type}</li>
+          <img src={`https://ipfs.io/${imageURI.image}`.replace("ipfs:/", "ipfs/")} />
+        </p>
+      )
+      setNftDoms(tmpNftDoms)
+    }
     setNFTs(respJson);
-  }, []);
-  let NftDoms = <p></p>
-  if (nfts){
-    NftDoms = nfts.result.map((nft) => (
-      <p key={nft.token_address}>
-        {nft.token_address} - {nft.contract_type}
-      </p>
-    ))
+
   }
+  useEffect(requestNftData, []);
   function addWalletListener() {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts) => {
@@ -69,16 +80,8 @@ const Minter = (props) => {
     const walletResponse = await connectWallet();
     setStatus(walletResponse.status);
     setWallet(walletResponse.address);
-  };
-
-  const onMintPressed = async () => {
-    const { success, status } = await mintNFT(url, name, description);
-    setStatus(status);
-    if (success) {
-      setName("");
-      setDescription("");
-      setURL("");
-    }
+    console.log("connectWalletPressed!")
+    requestNftData();
   };
 
   return (
@@ -93,41 +96,14 @@ const Minter = (props) => {
           <span>Connect Wallet</span>
         )}
       </button>
-
-      <br></br>
-      <h1 id="title">🧙‍♂️ Alchemy NFT Minter</h1>
-      <p>
-        Simply add your asset's link, name, and description, then press "Mint."
-      </p>
       {NftDoms}
-      <form>
-        <h2>🖼 Link to asset: </h2>
-        <input
-          type="text"
-          placeholder="e.g. https://gateway.pinata.cloud/ipfs/<hash>"
-          onChange={(event) => setURL(event.target.value)}
-        />
-        <h2>🤔 Name: </h2>
-        <input
-          type="text"
-          placeholder="e.g. My first NFT!"
-          onChange={(event) => setName(event.target.value)}
-        />
-        <h2>✍️ Description: </h2>
-        <input
-          type="text"
-          placeholder="e.g. Even cooler than cryptokitties ;)"
-          onChange={(event) => setDescription(event.target.value)}
-        />
-      </form>
-      <button id="mintButton" onClick={onMintPressed}>
-        Mint NFT
-      </button>
-      <p id="status" style={{ color: "red" }}>
-        {status}
-      </p>
     </div>
   );
 };
 
+
+async function getTokenURI(nft) {
+  const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
+  return await nftContract.methods.tokenURI(1).call();
+}
 export default Minter;
