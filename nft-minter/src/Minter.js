@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  connectWallet,
-  getCurrentWalletConnected,
-} from "./util/interact.js";
+import { connectWallet, getCurrentWalletConnected } from "./util/interact.js";
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const alchemyKey = process.env.REACT_APP_ALCHEMY_KEY;
 const web3 = createAlchemyWeb3(alchemyKey);
@@ -12,7 +9,8 @@ const Minter = (props) => {
   const [walletAddress, setWallet] = useState("");
   const [status, setStatus] = useState("");
 
-  const [nfts, setNFTs] = useState({ "result": [] });
+  const [nfts, setNFTs] = useState({ result: [] });
+  console.log(status, nfts);
   const [NftDoms, setNftDoms] = useState(<p></p>);
   async function requestNftData() {
     const { address, status } = await getCurrentWalletConnected();
@@ -21,39 +19,49 @@ const Minter = (props) => {
     setStatus(status);
     addWalletListener();
     try {
-      let resp = await fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=rinkeby&format=decimal`, {
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'accept': 'application/json',
-          'X-API-Key': 'f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y'
-        })
-      });
+      let resp = await fetch(
+        `https://deep-index.moralis.io/api/v2/${address}/nft?chain=rinkeby&format=decimal`,
+        {
+          headers: new Headers({
+            "Content-Type": "application/json",
+            accept: "application/json",
+            "X-API-Key":
+              "f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y",
+          }),
+        }
+      );
       let respJson = await resp.json();
       respJson.result.map(async (nft) => {
-        const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
-        const result = await nftContract.methods.tokenURI(1).call();
-      }
-      )
-      let tmpNftDoms = []
+        const nftContract = new web3.eth.Contract(
+          contract.abi,
+          nft.token_address
+        );
+      });
+      let tmpNftDoms = [];
       for (const nft of respJson.result) {
-        const tokenURI = await getTokenURI(nft)
-        const resp = await fetch(`https://ipfs.io/${tokenURI}`.replace("ipfs:/", "ipfs/"))
-        const imageURI = await resp.json()
+        const tokenURI = await getTokenURI(nft);
+        const resp = await fetch(
+          `https://ipfs.io/${tokenURI}`.replace("ipfs:/", "ipfs/")
+        );
+        const imageURI = await resp.json();
         tmpNftDoms.push(
           <p key={nft.token_address}>
             <li>NFT address: {nft.token_address}</li>
             <li>Type: {nft.contract_type}</li>
-            <img src={`https://ipfs.io/${imageURI.image}`.replace("ipfs:/", "ipfs/")} />
+            <img
+              src={`https://ipfs.io/${imageURI.image}`.replace(
+                "ipfs:/",
+                "ipfs/"
+              )}
+            />
           </p>
-        )
+        );
       }
-      setNftDoms(tmpNftDoms)
+      setNftDoms(tmpNftDoms);
       setNFTs(respJson);
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   }
   useEffect(requestNftData, []);
   function addWalletListener() {
@@ -72,7 +80,11 @@ const Minter = (props) => {
         <p>
           {" "}
           🦊{" "}
-          <a target="_blank" href={`https://metamask.io/download.html`}>
+          <a
+            target="_blank"
+            href={`https://metamask.io/download.html`}
+            rel="noreferrer"
+          >
             You must install Metamask, a virtual Ethereum wallet, in your
             browser.
           </a>
@@ -85,7 +97,7 @@ const Minter = (props) => {
     const walletResponse = await connectWallet();
     setStatus(walletResponse.status);
     setWallet(walletResponse.address);
-    console.log("connectWalletPressed!")
+    console.log("connectWalletPressed!");
     requestNftData();
   };
 
@@ -105,7 +117,6 @@ const Minter = (props) => {
     </div>
   );
 };
-
 
 async function getTokenURI(nft) {
   const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
