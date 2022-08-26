@@ -20,34 +20,39 @@ const Minter = (props) => {
     setWallet(address);
     setStatus(status);
     addWalletListener();
-    let resp = await fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=rinkeby&format=decimal`, {
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-        'X-API-Key': 'f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y'
-      })
-    });
-    let respJson = await resp.json();
-    respJson.result.map(async (nft) => {
-      const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
-      const result = await nftContract.methods.tokenURI(1).call();
-    }
-    )
-    let tmpNftDoms = []
-    for (const nft of respJson.result) {
-      const tokenURI = await getTokenURI(nft)
-      const resp = await fetch(`https://ipfs.io/${tokenURI}`.replace("ipfs:/", "ipfs/"))
-      const imageURI = await resp.json()
-      tmpNftDoms.push(
-        <p key={nft.token_address}>
-          <li>NFT address: {nft.token_address}</li>
-          <li>Type: {nft.contract_type}</li>
-          <img src={`https://ipfs.io/${imageURI.image}`.replace("ipfs:/", "ipfs/")} />
-        </p>
+    try {
+      let resp = await fetch(`https://deep-index.moralis.io/api/v2/${address}/nft?chain=rinkeby&format=decimal`, {
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+          'X-API-Key': 'f7p5XanmDOcD2esKBevadHLJ40dU8MHQ2LtXKrhB5WX947zEkpRrFqCVS5rwgm1y'
+        })
+      });
+      let respJson = await resp.json();
+      respJson.result.map(async (nft) => {
+        const nftContract = new web3.eth.Contract(contract.abi, nft.token_address);
+        const result = await nftContract.methods.tokenURI(1).call();
+      }
       )
+      let tmpNftDoms = []
+      for (const nft of respJson.result) {
+        const tokenURI = await getTokenURI(nft)
+        const resp = await fetch(`https://ipfs.io/${tokenURI}`.replace("ipfs:/", "ipfs/"))
+        const imageURI = await resp.json()
+        tmpNftDoms.push(
+          <p key={nft.token_address}>
+            <li>NFT address: {nft.token_address}</li>
+            <li>Type: {nft.contract_type}</li>
+            <img src={`https://ipfs.io/${imageURI.image}`.replace("ipfs:/", "ipfs/")} />
+          </p>
+        )
+      }
       setNftDoms(tmpNftDoms)
+      setNFTs(respJson);
+
+    } catch (error) {
+      console.log(error)
     }
-    setNFTs(respJson);
 
   }
   useEffect(requestNftData, []);
