@@ -1,11 +1,23 @@
-# 📝 NFT Minter Tutorial Files
+# NFT backdoor service (Fleek + Solidity + React) [![.github/workflows/node_ci.yml](https://github.com/david30907d/blockchain-misc/actions/workflows/node_ci.yml/badge.svg)](https://github.com/david30907d/blockchain-misc/actions/workflows/node_ci.yml)
 
-This repository contains the starter files (`minter-starter-files`) and completed version (`nft-tutorial`) of Alchemy's [NFT Minter tutorial](https://docs.alchemyapi.io/alchemy/tutorials/nft-minter). 
+## Prerequisites
 
-## ℹ️ About the tutorial
+1. node
+2. react
+3. fleek
 
-In this beginner-level tutorial, we'll teach you how to connect your smart contract to your React dApp project by building an NFT Minter using Metamask and Web3. 
+## Install
 
-## 🤔 Note
+Npm dependencies, for linter, formatter and commit linter (optional):
 
-Neither the `minter-starter-files` nor the `nft-tutorial` have their `node_modules` folder. So before running `npm start` in your terminal to start the React project, you need to run `npm install` to download all the package dependencies.
+1. `brew install npm`
+2. `npm ci`
+
+## Run & Deploy
+
+1. `cd nft-minter; npm start`
+2. NFT contract side: https://github.com/david30907d/NFT-playground
+
+## CI
+
+Please refer to [.github/workflows/node_ci.yaml](.github/workflows/node_ci.yaml) for details!
