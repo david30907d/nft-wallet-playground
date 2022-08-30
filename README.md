@@ -24,12 +24,13 @@ Please use rinkeby: https://small-scene-2066.on.fleek.co/
 
 ![Screen Shot 2022-08-30 at 10 34 30 AM](https://user-images.githubusercontent.com/9366404/187335828-5043c482-88d1-452e-9da2-f30ac4febd27.png)
 
-
 HW 錄影講解：
+
 1. https://www.loom.com/share/4534ec9a8f21439085bf98c70f943208
 2. https://www.loom.com/share/ae2af2da35224144b01cfdebe1f91a12
 
 GitHub:
+
 1. FE side: https://github.com/david30907d/nft-wallet-playground
 2. Smart contract side: https://github.com/david30907d/NFT-playground
 
